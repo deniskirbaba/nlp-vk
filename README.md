@@ -1,2 +1,1 @@
-# nlp-vk
-NLP course at VK (fall 2024)
+# NLP course at VK (fall 2024)
