@@ -59,7 +59,7 @@ def generate(
     """
     do_sample = temperature > 0
     gen_ids = []
-    # Изначально подидим в модель токен начала текста и нулевое состояние
+    # Изначально подадим в модель токен начала текста и нулевое состояние
     hx = None
     tokens = torch.tensor([tokenizer.bos_token_id], dtype=torch.long)
 
@@ -70,7 +70,7 @@ def generate(
             logits, hx = model(tokens, hx)
             if not do_sample:
                 # Выбираем наиболее вероятный токен
-                new_token = <YOUR CODE HERE>
+                new_token = logits.argmax().item()
             else:
                 logits /= temperature
                 # Получаем вероятностное распределение следующего токена
@@ -78,9 +78,9 @@ def generate(
                 ids = np.arange(len(p))
                 if top_k is not None:
                     # Выбираем top-k наиболее вероятных токенов. Используйте np.argpartition(...)
-                    ids = <YOUR CODE HERE>
+                    ids = np.argpartition(-p, kth=top_k, axis=-1)
                     p = p[ids] / p[ids].sum()
-                new_token = np.random.choice(ids, p=p)
+                new_token = np.random.choice(ids, p=p).item()
 
         if new_token == tokenizer.eos_token_id:
             break

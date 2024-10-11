@@ -43,6 +43,6 @@ class Collator:
                     [4, 5, 0],
                     [6, 0, 0]])
         """
-        data = [torch.tensor(x, dtype=torch.long) for x in data]
-        data = pad_sequence(<YOUR CODE HERE>)
-        return data
+        tensor_list = [torch.tensor(x, dtype=torch.long) for x in data]
+        tensor_list = pad_sequence(tensor_list, batch_first=True, padding_value=self.padding_value)
+        return tensor_list

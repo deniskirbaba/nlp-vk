@@ -1,5 +1,6 @@
-import torch.nn as nn
 from typing import Optional, Tuple
+
+import torch.nn as nn
 from torch import Tensor
 
 
@@ -27,23 +28,28 @@ class Model(nn.Module):
         >>> output, (h_n, c_n) = model(input_data)  # Прямое распространение
         >>> print(output.shape)  # Результат: torch.Size([32, 50, 10000])
     """
+
     def __init__(
-            self,
-            vocab_size: int,
-            emb_size: int = 128,
-            num_layers: int = 1,
-            hidden_size: int = 256,
-            dropout: float = 0.0
+        self,
+        vocab_size: int,
+        emb_size: int = 128,
+        num_layers: int = 1,
+        hidden_size: int = 256,
+        dropout: float = 0.0,
     ):
         super().__init__()
-        self.embeddings = nn.Embedding(<YOUR CODE HERE>)
-        self.lstm = nn.LSTM(<YOUR CODE HERE>)
-        self.logits = nn.Linear(<YOUR CODE HERE>)
+        self.embeddings = nn.Embedding(vocab_size, emb_size)
+        self.lstm = nn.LSTM(
+            emb_size,
+            hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout,
+        )
+        self.logits = nn.Linear(hidden_size, vocab_size)
 
     def forward(
-            self,
-            x: Tensor,
-            hx: Optional[Tuple[Tensor, Tensor]] = None
+        self, x: Tensor, hx: Optional[Tuple[Tensor, Tensor]] = None
     ) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
         """
         Проводит прямое распространение через сеть.
@@ -57,4 +63,7 @@ class Model(nn.Module):
                 - Логиты (предсказания для каждого слова в последовательности) размером (batch_size, seq_len, vocab_size).
                 - Пара скрытых состояний (h_n, c_n), где h_n и c_n — это последние скрытые и клеточные состояния LSTM.
         """
-        <YOUR CODE HERE>
+        emb = self.embeddings(x)
+        lstm_out, hc_out = self.lstm(emb, hx)
+        logits = self.logits(lstm_out)
+        return logits, hc_out
