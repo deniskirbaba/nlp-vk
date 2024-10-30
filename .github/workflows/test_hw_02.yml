@@ -1,7 +1,7 @@
+name: Test Homework 02
+
 on: 
-  push:
-    paths:
-      Homework/02/solution.py
+  workflow_dispatch:
 
 jobs:
   test-attention-head:
