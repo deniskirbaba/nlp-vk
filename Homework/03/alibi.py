@@ -15,7 +15,17 @@ def compute_alibi(num_heads: int, seq_len: int) -> torch.Tensor:
     Returns:
         torch.Tensor: A tensor containing ALiBi to be added to attention scores.
     """
-    pass
+    slopes = torch.tensor(
+        [2 ** (-8 * (i + 1) / num_heads) for i in range(num_heads)]
+    ).view(num_heads, 1, 1)
+
+    relative_positions = torch.arange(seq_len).view(1, -1) - torch.arange(seq_len).view(
+        -1, 1
+    )
+    
+    biases = (slopes * relative_positions).float()
+
+    return biases
 
 
 if __name__ == "__main__":
