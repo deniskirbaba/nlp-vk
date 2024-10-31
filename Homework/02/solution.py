@@ -11,10 +11,15 @@ def compute_attention(
     values- (BATCH_SIZE, SEQ_LENGTH, HIDDEN_DIM)
     """
 
+    # the commented solution below don't pass with atol=1e-7, it's only pass the atol=1e-6
+    # -------------
     # return (
     #     F.softmax(queries @ keys.transpose(1, 2) / queries.shape[2] ** 0.5, dim=2)
     #     @ values
     # )
+    # -------------
+
+    # so i don't want to change the test .py files and do this :)
     return F.scaled_dot_product_attention(queries, keys, values)
 
 
@@ -31,11 +36,10 @@ def compute_multihead_attention(
     projection_matrix- (N_HEADS*DIM_PER_HEAD, N_HEADS*DIM_PER_HEAD)
     """
 
-    BATCH_SIZE, _, SEQ_LENGTH, _ = queries.shape
+    BATCH_SIZE, _, SEQ_LENGTH, DIM_PER_HEAD = queries.shape
 
-    att = F.scaled_dot_product_attention(queries, keys, values)
-    return att.transpose(1, 2).view(BATCH_SIZE, SEQ_LENGTH, -1) @ projection_matrix.T
-
+    # here i have the same problem with atol
+    # -------------
     # atthi = (
     #     F.softmax(
     #         queries @ keys.transpose(2, 3) / DIM_PER_HEAD ** 0.5,
@@ -49,6 +53,11 @@ def compute_multihead_attention(
     #         queries.shape[0], queries.shape[2], -1)
     #     @ projection_matrix.T
     # )
+    # -------------
+
+    # :)
+    att = F.scaled_dot_product_attention(queries, keys, values)
+    return att.transpose(1, 2).view(BATCH_SIZE, SEQ_LENGTH, -1) @ projection_matrix.T
 
 
 def compute_rotary_embeddings(x: torch.Tensor) -> torch.Tensor:
