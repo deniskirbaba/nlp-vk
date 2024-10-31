@@ -26,7 +26,7 @@ def scaled_dot_product_gqa(
                 Only returned if 'need_weights' is True.
     """
 
-    _, seq_len, num_heads, embed_dim = query.shape
+    _, seq_len, num_heads, hid_dim = query.shape
     _, kv_seq_len, kv_heads, _ = key.shape
 
     if num_heads % kv_heads != 0:
@@ -35,7 +35,7 @@ def scaled_dot_product_gqa(
         )
 
     head_ratio = num_heads // kv_heads
-    scale = embed_dim**-0.5
+    scale = hid_dim**-0.5
 
     if kv_heads < num_heads:
         key = key.repeat_interleave(head_ratio, dim=2)
