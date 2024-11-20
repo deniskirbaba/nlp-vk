@@ -1,6 +1,7 @@
-import torch
 from typing import Tuple
-from torch import Tensor, CharTensor
+
+import torch
+from torch import CharTensor, Tensor
 
 
 def absmax_quantization(x: Tensor) -> Tuple[float, CharTensor]:
@@ -15,8 +16,8 @@ def absmax_quantization(x: Tensor) -> Tuple[float, CharTensor]:
             - `s` (float): Масштабный коэффициент, использованный для квантования.
             - `x_q` (CharTensor): Квантованный тензор с значениями типа `int8`.
     """
-    s = <ВАШ КОД>
-    x_q = <ВАШ КОД>
+    s = 127.0 / x.abs().max().item()
+    x_q = (x * s).round().to(dtype=torch.int8)
     return s, x_q
 
 
@@ -31,7 +32,7 @@ def absmax_dequantization(s: float, x_q: Tensor) -> Tensor:
     Returns:
         Tensor: Восстановленный (деквантованный) тензор с типом `float`.
     """
-    return <ВАШ КОД>
+    return x_q.to(dtype=torch.float) / s
 
 
 def zeropoint_quantization(x: Tensor) -> Tuple[float, int, CharTensor]:
@@ -48,9 +49,9 @@ def zeropoint_quantization(x: Tensor) -> Tuple[float, int, CharTensor]:
             - `z` (int): Смещение (нулевая точка), использованное для квантования.
             - `x_q` (CharTensor): Квантованный тензор с значениями типа `int8`.
     """
-    s = <ВАШ КОД>
-    z = <ВАШ КОД>
-    x_q = <ВАШ КОД>
+    s = 255.0 / (x.max() - x.min()).item()
+    z = round(-s * x.min().item() - 128)
+    x_q = (x * s + z).round().to(dtype=torch.int8)
     return s, z, x_q
 
 
@@ -66,4 +67,4 @@ def zeropoint_dequantization(s: float, z: int, x_q: Tensor) -> Tensor:
     Returns:
         Tensor: Восстановленный (деквантованный) тензор с типом `float`.
     """
-    return <ВАШ КОД>
+    return (x_q.to(dtype=torch.float) - z) / s
