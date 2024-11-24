@@ -1,9 +1,14 @@
+import torch
+
+
 def generate_with_reward_guidance(
-        main_model, main_tokenizer,
-        reward_model, reward_tokenizer,
-        N=16,
-        device='cpu',
-    ):
+    main_model,
+    main_tokenizer,
+    reward_model,
+    reward_tokenizer,
+    N=16,
+    device="cpu",
+) -> str:
     """
     Generate text samples using a main model and select the best sample based on a reward model's guidance.
 
@@ -22,7 +27,14 @@ def generate_with_reward_guidance(
     Returns:
     str: The generated text sample with the highest reward score.
     """
+    # Generate samples
+    inputs = main_tokenizer(["Film was"] * N, return_tensors="pt").to(device)
+    samples: list[str] = []
+    for candidate in main_model.generate(**inputs, max_new_tokens=50, do_sample=True):
+        samples.append(main_tokenizer.decode(candidate.flatten().cpu().numpy().tolist()))
 
-    # <YOUR CODE HERE>
+    # Compute rewards
+    rewards = compute_reward(reward_model, reward_tokenizer, samples)
 
-    raise NotImplementedError
+    # Return the most `rewarded` sample
+    return samples[torch.argmax(rewards).item()]

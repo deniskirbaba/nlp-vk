@@ -1,6 +1,24 @@
-from torch import Tensor, no_grad
+from torch import Tensor, no_grad, tensor
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
 
-def compute_reward(reward_model, reward_tokenizer, texts: list[str], device='cpu') -> Tensor:
+
+class MovieReview(Dataset):
+    """
+    Represents dataset of movie review raw texts without labels
+    """
+
+    def __init__(self, texts: list[str]):
+        self.texts = texts
+
+    def __len__(self):
+        return len(self.texts)
+
+    def __getitem__(self, index):
+        return self.texts[index]
+
+
+def compute_reward(reward_model, reward_tokenizer, texts: list[str], device="cpu") -> Tensor:
     """
     Compute the reward scores for a list of texts using a specified reward model and tokenizer.
 
@@ -18,8 +36,14 @@ def compute_reward(reward_model, reward_tokenizer, texts: list[str], device='cpu
     >>> compute_reward(my_reward_model, my_reward_tokenizer, ["text1", "text2"])
     tensor([ 5.1836, -4.8438], device='cpu')
     """
-    raise NotImplementedError
-
-    # <YOUR CODE HERE>
+    dataset = MovieReview(texts)
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
+    rewards = []
     with no_grad():
-        # <YOUR CODE HERE>
+        for batch in tqdm(dataloader, desc="Computing rewards", leave=False):
+            inputs = reward_tokenizer(
+                batch, truncation=True, padding="max_length", return_tensors="pt"
+            ).to(device)
+            logits = reward_model(**inputs).logits[:, 0].detach().cpu().tolist()
+            rewards.extend(logits)
+    return tensor(rewards)
