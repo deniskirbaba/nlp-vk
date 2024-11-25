@@ -1,6 +1,7 @@
 name: Test Homework 05
 
 on: 
+  workflow_dispatch:
   push:
     paths:
       Homework/05/scripts/*.py
