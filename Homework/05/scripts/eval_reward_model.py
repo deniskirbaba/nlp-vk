@@ -44,7 +44,7 @@ def eval_reward_model(reward_model, reward_tokenizer, test_dataset, target_label
     # Calculate accuracy
     total = len(ch_ids) * len(rej_ids)
     correct = 0
-    for ch_idx in tqdm(ch_ids, desc="Calculating accuracy", leave=False):
+    for _ in tqdm(ch_ids, desc="Calculating accuracy", leave=False):
         correct += (rewards[rej_ids] < rewards[ch_ids]).sum().item()
 
     return correct / total
