@@ -8,12 +8,22 @@ def create_prompt(sample: dict) -> str:
     Returns:
         str: A formatted string prompt for the multiple choice question.
     """
-    <ВАШ КОД ЗДЕСЬ>
 
-    return ...
+    prompt = f"""\
+The following are multiple choice questions (with answers) about {sample['subject']}.
+{sample['question']}
+A. {sample['choices'][0]}
+B. {sample['choices'][1]}
+C. {sample['choices'][2]}
+D. {sample['choices'][3]}
+Answer:"""
+
+    return prompt
 
 
-def create_prompt_with_examples(sample: dict, examples: list, add_full_example: bool = False) -> str:
+def create_prompt_with_examples(
+    sample: dict, examples: list, add_full_example: bool = False
+) -> str:
     """
     Generates a 5-shot prompt for a multiple choice question based on the given sample and examples.
 
@@ -25,6 +35,12 @@ def create_prompt_with_examples(sample: dict, examples: list, add_full_example: 
     Returns:
         str: A formatted string prompt for the multiple choice question with 5 examples.
     """
-    <ВАШ КОД ЗДЕСЬ>
+    itos = {0: "A", 1: "B", 2: "C", 3: "D"}
+    if add_full_example:
+        answers = [". ".join([itos[ex["answer"]], ex["choices"][ex["answer"]]]) for ex in examples]
+    else:
+        answers = [itos[ex["answer"]] for ex in examples]
 
-    return <ВАШ КОД ЗДЕСЬ>
+    examples_str = [" ".join([create_prompt(ex), ans]) for ex, ans in zip(examples, answers)]
+
+    return "\n\n".join([*examples_str, create_prompt(sample)])
