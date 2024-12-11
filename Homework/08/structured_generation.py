@@ -20,7 +20,7 @@ def get_valid_tokens(vocab: dict[int, str], eos_token_id: int, fsm: FSM, state: 
 
     if fsm.states[state].is_terminal:
         valid_ids.append(eos_token_id)
-    
+
     return valid_ids
 
 
