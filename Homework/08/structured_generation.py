@@ -4,8 +4,8 @@ from fsm import FSM, build_odd_zeros_fsm
 
 
 def get_valid_tokens(vocab: dict[int, str], eos_token_id: int, fsm: FSM, state: int) -> list[int]:
-    """Filter tokens from the vocabulary based on the given state in the FSM.  
-    1. Retain only tokens that can be achieved from the given state.  
+    """Filter tokens from the vocabulary based on the given state in the FSM.
+    1. Retain only tokens that can be achieved from the given state.
     2. If the current state is terminal, then add the EOS token.
 
     Args:
@@ -16,7 +16,12 @@ def get_valid_tokens(vocab: dict[int, str], eos_token_id: int, fsm: FSM, state: 
     Returns:
         valid tokens (list): list of possible tokens
     """
-    raise NotImplementedError
+    valid_ids = [id for id, tok in vocab.items() if fsm.validate_continuation(state, tok)]
+
+    if fsm.states[state].is_terminal:
+        valid_ids.append(eos_token_id)
+    
+    return valid_ids
 
 
 def random_generation() -> str:
@@ -37,12 +42,16 @@ def random_generation() -> str:
     # Sample until EOS token
     while True:
         # 1. Get valid tokens
-        valid_tokens = ...
+        valid_ids = get_valid_tokens(vocab, eos_token_id, fsm, state)
+
         # 2. Get next token
-        next_token = ...
+        next_token_id = random.choice(valid_ids)
 
         # 3. End generation or move to next iteration
-        ...
+        if next_token_id == eos_token_id:
+            break
+        tokens.append(next_token_id)
+        state = fsm.move(vocab[next_token_id], state)
 
     # Convert tokens to string
     return "".join([vocab[it] for it in tokens])
